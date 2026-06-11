@@ -1,7 +1,0 @@
-../Core/Src/compteur.c:12:6:Compteur_Start	8	static
-../Core/Src/compteur.c:17:6:Compteur_Stop	8	static
-../Core/Src/compteur.c:24:10:Compteur_GetGauche	4	static
-../Core/Src/compteur.c:30:10:Compteur_GetDroite	24	static
-../Core/Src/compteur.c:54:6:Compteur_ResetGauche	4	static
-../Core/Src/compteur.c:60:6:Compteur_ResetDroite	4	static
-../Core/Src/compteur.c:67:6:HAL_TIM_PeriodElapsedCallback	16	static

@@ -1,3 +1,0 @@
-../Core/Src/systeme.c:10:6:BattementCoeur	2
-../Core/Src/systeme.c:27:6:DWT_Init	1
-../Core/Src/systeme.c:35:10:get_time_us	1

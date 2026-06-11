@@ -1,7 +1,0 @@
-../Core/Src/dialogue.c:35:20:fifo_push	2
-../Core/Src/dialogue.c:46:19:fifo_pop	2
-../Core/Src/dialogue.c:59:6:Dialogue_Init	1
-../Core/Src/dialogue.c:75:6:Dialogue_PushBytes	2
-../Core/Src/dialogue.c:83:6:Dialogue_Process	7
-../Core/Src/dialogue.c:112:6:Dialogue_UART_IDLE_Callback	4
-../Core/Src/dialogue.c:136:28:Dialogue_OnCommand	1
