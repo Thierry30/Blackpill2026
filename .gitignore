@@ -1,0 +1,31 @@
+# =========================
+# STM32CubeIDE
+# =========================
+.metadata/
+.settings/
+.cproject
+.project
+*.launch
+
+# =========================
+# Build folders
+# =========================
+Debug/
+Release/
+
+# =========================
+# Binary / object files
+# =========================
+*.o
+*.obj
+*.elf
+*.hex
+*.bin
+*.map
+
+# =========================
+# Logs / temp files
+# =========================
+*.log
+*.tmp
+*.bak
