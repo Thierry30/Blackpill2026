@@ -65,12 +65,14 @@ void Error_Handler(void);
 #define TX_Bt_GPIO_Port GPIOA
 #define RX_Bt_Pin GPIO_PIN_3
 #define RX_Bt_GPIO_Port GPIOA
+#define Cpt_Stop_Pin GPIO_PIN_10
+#define Cpt_Stop_GPIO_Port GPIOB
 #define CS_Mem_Pin GPIO_PIN_12
 #define CS_Mem_GPIO_Port GPIOB
-#define Mot_G_N_Pin GPIO_PIN_14
-#define Mot_G_N_GPIO_Port GPIOB
-#define Mot_D_N_Pin GPIO_PIN_15
-#define Mot_D_N_GPIO_Port GPIOB
+#define AIN1_MotG_Pin GPIO_PIN_14
+#define AIN1_MotG_GPIO_Port GPIOB
+#define BIN1_MotD_Pin GPIO_PIN_15
+#define BIN1_MotD_GPIO_Port GPIOB
 #define PWM_Mot_G_Pin GPIO_PIN_8
 #define PWM_Mot_G_GPIO_Port GPIOA
 #define PWM_Mot_D_Pin GPIO_PIN_9
@@ -79,6 +81,10 @@ void Error_Handler(void);
 #define CS_Mcp3008_GPIO_Port GPIOA
 #define EncoD_Pin GPIO_PIN_4
 #define EncoD_GPIO_Port GPIOB
+#define AIN2_MotG_Pin GPIO_PIN_5
+#define AIN2_MotG_GPIO_Port GPIOB
+#define BIN2_MotD_Pin GPIO_PIN_6
+#define BIN2_MotD_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

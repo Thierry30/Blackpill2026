@@ -32,6 +32,8 @@
 #include "usbd_cdc_if.h"
 #include "dialogue.h"
 #include "systeme.h"
+#include "moteur.h"
+#include "compteur.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -116,6 +118,8 @@ int main(void)
 
   Dialogue_Init();
   DWT_Init();
+  Moteur_Initialiser();
+  Compteur_Start();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -127,7 +131,14 @@ int main(void)
 
 	  BattementCoeur();
 
+	  Moteur_DefinirGauche(80);
+	  Moteur_DefinirDroite(80);
 
+	  Moteur_Traitement();
+
+
+	  uint32_t positionGauche = Compteur_GetGauche();
+	  uint32_t positionDroite = Compteur_GetDroite();
 
 	  uint32_t finDeboucle = get_time_us();
 
@@ -136,6 +147,7 @@ int main(void)
 	  	if (HAL_GetTick() - compteur2 >= 2000) {
 	  			compteur2 = HAL_GetTick();
 	  			printf("Temps de boucle: %lu us\r\n", tempDeBoucle);
+	  			printf("Copteur G: %lu CompteurD %lu\r\n",positionGauche, positionDroite );
 	  	}
 
     /* USER CODE END WHILE */

@@ -54,7 +54,8 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(LedBleu_Carte_GPIO_Port, LedBleu_Carte_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, CS_Mem_Pin|Mot_G_N_Pin|Mot_D_N_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, CS_Mem_Pin|AIN1_MotG_Pin|BIN1_MotD_Pin|AIN2_MotG_Pin
+                          |BIN2_MotD_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(CS_Mcp3008_GPIO_Port, CS_Mcp3008_Pin, GPIO_PIN_RESET);
@@ -66,8 +67,16 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(LedBleu_Carte_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : CS_Mem_Pin Mot_G_N_Pin Mot_D_N_Pin */
-  GPIO_InitStruct.Pin = CS_Mem_Pin|Mot_G_N_Pin|Mot_D_N_Pin;
+  /*Configure GPIO pin : Cpt_Stop_Pin */
+  GPIO_InitStruct.Pin = Cpt_Stop_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(Cpt_Stop_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : CS_Mem_Pin AIN1_MotG_Pin BIN1_MotD_Pin AIN2_MotG_Pin
+                           BIN2_MotD_Pin */
+  GPIO_InitStruct.Pin = CS_Mem_Pin|AIN1_MotG_Pin|BIN1_MotD_Pin|AIN2_MotG_Pin
+                          |BIN2_MotD_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
