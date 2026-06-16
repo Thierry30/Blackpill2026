@@ -120,6 +120,9 @@ int main(void)
   DWT_Init();
   Moteur_Initialiser();
   Compteur_Start();
+
+  // Petit message de démarrage envoyé au Bluetooth via le DMA
+    Bluetooth_Send_DMA("Blackpill F411 Demarree ! Ready.\n");
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -129,12 +132,31 @@ int main(void)
 	  uint32_t debutDeBoucle = get_time_us();
 	  Dialogue_Process();
 
+
 	  BattementCoeur();
 
 	  Moteur_DefinirGauche(80);
 	  Moteur_DefinirDroite(80);
 
 	  Moteur_Traitement();
+
+	  // 2. Exemple d'envoi périodique dans le main (toutes les secondes)
+	      static uint32_t last_tick = 0;
+	      if (HAL_GetTick() - last_tick >= 1000)
+	      {
+	          last_tick = HAL_GetTick();
+
+	          // On simule une variable de ton programme (ex: l'état d'un bouton ou une humeur)
+	          static int compteur = 0;
+	          compteur++;
+
+	          /* * Tu appelles la fonction exactement comme un printf.
+	           * Le CPU va exécuter cette ligne en quelques microsecondes seulement,
+	           * puis le DMA enverra les caractères en arrière-plan pendant que ton
+	           * main continue de tourner.
+	           */
+	          Bluetooth_Send_DMA("Donnee de telemetrie n %d\n", compteur);
+	      }
 
 
 	  uint32_t positionGauche = Compteur_GetGauche();
@@ -144,12 +166,13 @@ int main(void)
 
 	  uint32_t tempDeBoucle = finDeboucle - debutDeBoucle;
 
-	  	if (HAL_GetTick() - compteur2 >= 2000) {
+	 /* 	if (HAL_GetTick() - compteur2 >= 2000) {
 	  			compteur2 = HAL_GetTick();
 	  			printf("Temps de boucle: %lu us\r\n", tempDeBoucle);
 	  			printf("Copteur G: %lu CompteurD %lu\r\n",positionGauche, positionDroite );
-	  	}
 
+	  	}
+*/
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

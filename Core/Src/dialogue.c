@@ -2,16 +2,14 @@
 #include <string.h>
 #include <stdio.h>
 #include "usart.h"
+#include <stdlib.h> // Requis pour strtol
+#include <stdarg.h> // Requis pour gérer les arguments variables (...)
 
 // ================= CONFIG =================
 
-
 #define RX_SIZE 128
 
-
 // ================= DMA UART =================
-
-//static uint8_t rx_dma[RX_SIZE];
 
 static uint8_t rx_dma[RX_SIZE] __attribute__((aligned(32)));
 static volatile uint16_t old_pos;
@@ -20,7 +18,7 @@ static volatile uint16_t old_pos;
 
 typedef struct {
     uint8_t buffer[DIALOGUE_FIFO_SIZE];
-    volatile uint16_t head;  // Supporte 0-255
+    volatile uint16_t head;
     volatile uint16_t tail;
 } fifo_t;
 static fifo_t rx_fifo;
@@ -30,7 +28,7 @@ static fifo_t rx_fifo;
 static char line_buffer[DIALOGUE_LINE_SIZE];
 static uint16_t line_index = 0;
 
-// ================= FIFO =================
+// ================= FIFO FUNCTIONS =================
 
 static inline void fifo_push(fifo_t *f, uint8_t c)
 {
@@ -65,9 +63,6 @@ void Dialogue_Init(void)
 
     HAL_UART_Receive_DMA(&huart2, rx_dma, RX_SIZE);
     __HAL_UART_ENABLE_IT(&huart2, UART_IT_IDLE);
-
-    // Enregistrer callback d'erreur - VERSION CORRIGÉE
-
 }
 
 // ================= PUSH =================
@@ -82,29 +77,45 @@ void Dialogue_PushBytes(uint8_t *data, uint32_t len)
 
 void Dialogue_Process(void)
 {
-	    uint8_t c;
+    uint8_t c;
+    static uint8_t overflow_mode = 0;
 
     while (fifo_pop(&rx_fifo, &c))
-
     {
-        if (c == '\n' || c == '\r'|| c=='#')
+        // 1. Si on reçoit un caractère de fin (le '*' coupe la trame ici)
+        if (c == '\n' || c == '\r' || c == '*' || c == '#')
         {
-            if (line_index > 0)
+            if (overflow_mode)
             {
-                line_buffer[line_index] = '\0';
+                overflow_mode = 0;
+                line_index = 0;
+            }
+            else if (line_index > 0)
+            {
+                line_buffer[line_index] = '\0'; // Le '*' est remplacé par '\0'
                 Dialogue_OnCommand(line_buffer);
                 line_index = 0;
             }
         }
+        // 2. Mode débordement
+        else if (overflow_mode)
+        {
+            continue;
+        }
+        // 3. Remplissage normal
         else
         {
             if (line_index < DIALOGUE_LINE_SIZE - 1)
+            {
                 line_buffer[line_index++] = c;
+            }
             else
+            {
+                overflow_mode = 1;
                 line_index = 0;
+            }
         }
     }
-
 }
 
 // ================= IDLE CALLBACK =================
@@ -129,12 +140,109 @@ void Dialogue_UART_IDLE_Callback(void)
         old_pos = pos;
     }
 }
-//======================erreur dma==================
 
-// ================= CALLBACK USER =================
+// ================= PARSING CORRIGÉ =================
 
-__attribute__((weak)) void Dialogue_OnCommand(char *cmd)
+Command_t Communication_Parse(const char *cmd_str)
 {
-    //(void)cmd; // évite warning
-	printf("chaine USB/BT: %s\r\n", cmd);
+    Command_t result = {0}; // is_valid = 0 par défaut
+    int len = strlen(cmd_str);
+
+    // CORRECTION 1 : La longueur minimale sans le '*' est de 3 caractères (ex: "$V5")
+    if (len < 3) {
+        return result;
+    }
+
+    // CORRECTION 2 : On ne vérifie que le début. Le '*' a déjà été retiré par Dialogue_Process
+    if (cmd_str[0] != '$') {
+        return result;
+    }
+
+    // 3. Extraction de la lettre de commande
+    result.cmd_type = cmd_str[1];
+
+    // 4. Extraction de la valeur avec strtol
+    char *endptr;
+    result.value = strtol(&cmd_str[2], &endptr, 10);
+
+    /* CORRECTION 3 : Sécurité strtol
+     * Si endptr pointe sur '\0', c'est que toute la chaîne après la lettre
+     * était un nombre valide (pas de caractères parasites).
+     * On s'assure aussi qu'au moins un chiffre a été lu (endptr différent du début).
+     */
+    if (endptr != &cmd_str[2] && *endptr == '\0') {
+        result.is_valid = 1;
+    }
+
+    return result;
+}
+
+// ================= EXECUTION =================
+
+void Dialogue_OnCommand(char *cmd)
+{
+    Command_t msg = Communication_Parse(cmd);
+
+    if (msg.is_valid)
+    {
+        Communication_Execute(&msg);
+    }
+    else
+    {
+        // Affiche la chaîne nettoyée pour le debug
+        printf("Erreur: Trame invalide ou mal formee : %s\r\n", cmd);
+    }
+}
+
+void Communication_Execute(const Command_t *cmd)
+{
+    printf("Commande recue -> Type: %c, Valeur: %ld\r\n", cmd->cmd_type, cmd->value);
+
+    switch (cmd->cmd_type)
+    {
+        case 'V': // Cas de la Vitesse
+            // Sécurité exemple : brider la vitesse entre -100 et 100
+            {
+                int32_t vitesse = cmd->value;
+                if (vitesse > 100)  vitesse = 100;
+                if (vitesse < -100) vitesse = -100;
+                printf("Action: Mise a jour de la vitesse a %ld%%\r\n", vitesse);
+            }
+            break;
+
+        case 'A': // Cas de l'Accélération
+            printf("Action: Mise a jour de l'acceleration a %ld\r\n", cmd->value);
+            break;
+
+        default:
+            printf("Commande '%c' inconnue ou non geree.\r\n", cmd->cmd_type);
+            break;
+    }
+}
+
+
+
+// Buffer statique dédié à l'envoi DMA pour éviter les corruptions de mémoire
+static uint8_t tx_dma_buffer[128];
+
+
+//Utiliser comme printf, ça part sur huart2 BT
+void Bluetooth_Send_DMA(const char *format, ...)
+{
+	// Si le DMA est occupé à envoyer autre chose, on quitte IMMEDIATEMENT (le message est ignoré)
+	    if (huart2.gState == HAL_UART_STATE_BUSY_TX)
+	    {
+	        return;
+	    }
+    va_list args;
+    va_start(args, format);
+    // vsnprintf remplace les %d, %s par leurs vraies valeurs dans le buffer
+    int len = vsnprintf((char*)tx_dma_buffer, sizeof(tx_dma_buffer), format, args);
+    va_end(args);
+
+    if (len > 0)
+    {
+        // On lance l'envoi en DMA. Le CPU passe immédiatement à la ligne suivante !
+        HAL_UART_Transmit_DMA(&huart2, tx_dma_buffer, len);
+    }
 }
