@@ -157,7 +157,7 @@ int main(void)
 	  			compteur2 = HAL_GetTick();
 	  			printf("Temps de boucle: %lu us\r\n", tempDeBoucle);
 	  			printf("Copteur G: %lu CompteurD %lu\r\n",positionGauche, positionDroite );
-	  			Bluetooth_Send_DMA("Donnee de telemetrie n %d\n", tempDeBoucle);
+	  			Bluetooth_Send_DMA("Temps de boucle %d\n", tempDeBoucle);
 
 	  	}
 

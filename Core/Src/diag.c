@@ -15,7 +15,5 @@ void Diag_moteur(void){
 	Moteur_DefinirGauche(Vdiag);
 	Moteur_DefinirDroite(Vdiag);
 	Moteur_Traitement();
-
-	Bluetooth_Send_DMA("*V%d*",Vdiag);
 }
 

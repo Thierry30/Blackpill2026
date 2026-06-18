@@ -205,7 +205,9 @@ void Communication_Execute(const Command_t *cmd)
 			Set_Vmax((int16_t)cmd->value);
 
 			//Uniquement pour debug et mise au point
-			printf("Action: Mise a jour de la vitesse a %d%%\r\n", Get_Vmax());
+			printf("Action: Mise a jour de la vitesse a %d\r\n", Get_Vmax());
+			Bluetooth_Send_DMA("*V%d*",Get_Vmax());
+
 			break;
 
 
