@@ -4,6 +4,7 @@
 #include "usart.h"
 #include <stdlib.h> // Requis pour strtol
 #include <stdarg.h> // Requis pour gérer les arguments variables (...)
+#include "gestion_vitesse.h"
 
 // ================= CONFIG =================
 
@@ -200,15 +201,13 @@ void Communication_Execute(const Command_t *cmd)
 
     switch (cmd->cmd_type)
     {
-        case 'V': // Cas de la Vitesse
-            // Sécurité exemple : brider la vitesse entre -100 et 100
-            {
-                int32_t vitesse = cmd->value;
-                if (vitesse > 100)  vitesse = 100;
-                if (vitesse < -100) vitesse = -100;
-                printf("Action: Mise a jour de la vitesse a %ld%%\r\n", vitesse);
-            }
-            break;
+		  case 'V':
+			Set_Vmax((int16_t)cmd->value);
+
+			//Uniquement pour debug et mise au point
+			printf("Action: Mise a jour de la vitesse a %d%%\r\n", Get_Vmax());
+			break;
+
 
         case 'A': // Cas de l'Accélération
             printf("Action: Mise a jour de l'acceleration a %ld\r\n", cmd->value);

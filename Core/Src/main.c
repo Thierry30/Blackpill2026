@@ -34,6 +34,8 @@
 #include "systeme.h"
 #include "moteur.h"
 #include "compteur.h"
+#include "gestion_vitesse.h"
+#include "diag.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -135,28 +137,12 @@ int main(void)
 
 	  BattementCoeur();
 
-	  Moteur_DefinirGauche(80);
-	  Moteur_DefinirDroite(80);
 
-	  Moteur_Traitement();
+//	  Moteur_DefinirGauche(vitesse);
+//	  Moteur_DefinirDroite(vitesse);
+//	  Moteur_Traitement();
 
-	  // 2. Exemple d'envoi périodique dans le main (toutes les secondes)
-	      static uint32_t last_tick = 0;
-	      if (HAL_GetTick() - last_tick >= 1000)
-	      {
-	          last_tick = HAL_GetTick();
-
-	          // On simule une variable de ton programme (ex: l'état d'un bouton ou une humeur)
-	          static int compteur = 0;
-	          compteur++;
-
-	          /* * Tu appelles la fonction exactement comme un printf.
-	           * Le CPU va exécuter cette ligne en quelques microsecondes seulement,
-	           * puis le DMA enverra les caractères en arrière-plan pendant que ton
-	           * main continue de tourner.
-	           */
-	          Bluetooth_Send_DMA("Donnee de telemetrie n %d\n", compteur);
-	      }
+	  Diag_moteur();
 
 
 	  uint32_t positionGauche = Compteur_GetGauche();
@@ -166,13 +152,15 @@ int main(void)
 
 	  uint32_t tempDeBoucle = finDeboucle - debutDeBoucle;
 
-	 /* 	if (HAL_GetTick() - compteur2 >= 2000) {
+
+	 	if (HAL_GetTick() - compteur2 >= 2000) {
 	  			compteur2 = HAL_GetTick();
 	  			printf("Temps de boucle: %lu us\r\n", tempDeBoucle);
 	  			printf("Copteur G: %lu CompteurD %lu\r\n",positionGauche, positionDroite );
+	  			Bluetooth_Send_DMA("Donnee de telemetrie n %d\n", tempDeBoucle);
 
 	  	}
-*/
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
